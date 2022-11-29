@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "rollup-plugin-babel-minify": "^10.0.0",
+    "rollup-plugin-vue2": "^0.8.1"
+  },
+  "dependencies": {
+    "dart-sass": "^1.25.0"
+  }
+}
