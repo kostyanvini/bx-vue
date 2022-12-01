@@ -1,12 +1,13 @@
 <template>
     <div class="news">
-        <div class="news__item" v-for="el in news" :key="el.ID">
+        <Loader v-if="isLoaded"></Loader>
+        <div v-else class="news__item" v-for="el in news" :key="el.ID">
             <div class="news__item-image">
                 <img :src="el.PREVIEW_PICTURE.SRC" :alt="el.PREVIEW_PICTURE.ALT">
             </div>
             <div class="news__item-info">
                 <a href="javascript:void(0)" @click="$router.push(el.ID)" class="news__item-title">
-                    {{ el.NAME}}
+                    {{ el.NAME }}
                 </a>
                 <div class="news__item-text" v-html="el.PREVIEW_TEXT"></div>
             </div>
@@ -15,36 +16,37 @@
 </template>
 
 <script>
+import Loader from './Loader.vue';
 export default {
     name: 'News',
+    components: {
+        Loader
+    },
     data() {
         return {
-            news: []
+            news: [],
+            isLoaded: true,
         }
     },
     created() {
         if (this.$store.state.news.length) {
             this.news = this.$store.state.news;
+            this.isLoaded = false
         } else {
-            BX.ajax.runComponentAction('kostyanvi:news', 'getAllNews', {
+            BX.ajax.runComponentAction(this.$root.componentName, 'getAllNews', {
                     mode: 'class',
+                    signedParameters: this.$root.signedParameters,
                     data: {},
                 }
             ).then((responce => {
-                try {
-                    const news  = JSON.parse(responce.data);
+                    const news = responce.data;
                     this.news = news;
                     this.$store.commit('setAllNews', news);
-                } catch (e) {
-                    console.warn('Не удалось получить данные');
-                    this.news = [];
-                }
-            }));
+                    setTimeout(() => this.isLoaded = false, 1000)
+                })
+            ).catch(err => warn(err))
         }
     },
-    mounted() {
-
-    }
 }
 </script>
 

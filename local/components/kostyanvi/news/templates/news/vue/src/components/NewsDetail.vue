@@ -1,6 +1,6 @@
 <template>
     <div class="detail-news">
-        <div v-if="isLoaded" class="loader">Loading...</div>
+        <Loader v-if="isLoaded"></Loader>
         <div v-else>
             <router-link to="/" class="rollback">Go back</router-link>
             <div class="detail-news__info">
@@ -14,7 +14,10 @@
 </template>
 
 <script>
+import Loader from "./Loader.vue";
+
 export default {
+    components: {Loader},
     data() {
         return {
             isLoaded: true,
@@ -24,26 +27,23 @@ export default {
     created() {
         if (this.$store.state.newsCache[+this.$route.params.id]) {
             this.newsDetailInfo = this.$store.state.newsCache[+this.$route.params.id];
+            this.isLoaded = 0
         } else {
-            BX.ajax.runComponentAction('kostyanvi:news', 'getNewsByID', {
+            BX.ajax.runComponentAction(this.$root.componentName, 'getNewsByID', {
                     mode: 'class',
+                    signedParameters: this.$root.signedParameters,
                     data: {
                         id: +this.$route.params.id
                     },
                 }
             ).then((responce => {
-                try {
-                    const result = JSON.parse(responce.data);
+                    const result = responce.data;
                     this.newsDetailInfo = result;
                     this.$store.commit('registerNewNewsCache', result);
-                } catch (e) {
-                    console.warn('Не удалось получить данные');
-                    this.newsDetailInfo = {};
-                }
-            }));
+                    setTimeout(() => this.isLoaded = 0, 500);
+                })
+            ).catch(e => console.warn(e));
         }
-        // Имитация загрузки
-        setTimeout(() => this.isLoaded = 0, 500);
     }
 }
 </script>

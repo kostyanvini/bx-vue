@@ -2,43 +2,50 @@ this.BX = this.BX || {};
 (function (exports,ui_vue,ui_vue_vuex) {
     'use strict';
 
+    var Loader = {
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _vm._m(0)},
+    staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"news-loader"},[_c('div',{staticClass:"container"},[_c('div',{staticClass:"yellow"}),_vm._v(" "),_c('div',{staticClass:"red"}),_vm._v(" "),_c('div',{staticClass:"blue"}),_vm._v(" "),_c('div',{staticClass:"violet"})])])}],
+        name: 'Loader'
+    };
+
     var News = {
-    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"news"},_vm._l((_vm.news),function(el){return _c('div',{key:el.ID,staticClass:"news__item"},[_c('div',{staticClass:"news__item-image"},[_c('img',{attrs:{"src":el.PREVIEW_PICTURE.SRC,"alt":el.PREVIEW_PICTURE.ALT}})]),_vm._v(" "),_c('div',{staticClass:"news__item-info"},[_c('a',{staticClass:"news__item-title",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$router.push(el.ID)}}},[_vm._v("\n                "+_vm._s(el.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"news__item-text",domProps:{"innerHTML":_vm._s(el.PREVIEW_TEXT)}})])])}),0)},
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"news"},[(_vm.isLoaded)?_c('Loader'):_vm._l((_vm.news),function(el){return _c('div',{key:el.ID,staticClass:"news__item"},[_c('div',{staticClass:"news__item-image"},[_c('img',{attrs:{"src":el.PREVIEW_PICTURE.SRC,"alt":el.PREVIEW_PICTURE.ALT}})]),_vm._v(" "),_c('div',{staticClass:"news__item-info"},[_c('a',{staticClass:"news__item-title",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$router.push(el.ID)}}},[_vm._v("\n                "+_vm._s(el.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"news__item-text",domProps:{"innerHTML":_vm._s(el.PREVIEW_TEXT)}})])])})],2)},
     staticRenderFns: [],
         name: 'News',
+        components: {
+            Loader
+        },
         data() {
             return {
-                news: []
+                news: [],
+                isLoaded: true,
             }
         },
         created() {
             if (this.$store.state.news.length) {
                 this.news = this.$store.state.news;
+                this.isLoaded = false;
             } else {
-                BX.ajax.runComponentAction('kostyanvi:news', 'getAllNews', {
+                BX.ajax.runComponentAction(this.$root.componentName, 'getAllNews', {
                         mode: 'class',
+                        signedParameters: this.$root.signedParameters,
                         data: {},
                     }
                 ).then((responce => {
-                    try {
-                        const news  = JSON.parse(responce.data);
+                        const news = responce.data;
                         this.news = news;
                         this.$store.commit('setAllNews', news);
-                    } catch (e) {
-                        console.warn('Не удалось получить данные');
-                        this.news = [];
-                    }
-                }));
+                        setTimeout(() => this.isLoaded = false, 1000);
+                    })
+                ).catch(err => warn(err));
             }
         },
-        mounted() {
-
-        }
     };
 
     var NewsDetail = {
-    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"detail-news"},[(_vm.isLoaded)?_c('div',{staticClass:"loader"},[_vm._v("Loading...")]):_c('div',[_c('router-link',{staticClass:"rollback",attrs:{"to":"/"}},[_vm._v("Go back")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info"},[_c('div',{staticClass:"detail-news__info-name"},[_vm._v("\n                "+_vm._s(_vm.newsDetailInfo.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info-text",domProps:{"innerHTML":_vm._s(_vm.newsDetailInfo.DETAIL_TEXT)}})])],1)])},
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"detail-news"},[(_vm.isLoaded)?_c('Loader'):_c('div',[_c('router-link',{staticClass:"rollback",attrs:{"to":"/"}},[_vm._v("Go back")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info"},[_c('div',{staticClass:"detail-news__info-name"},[_vm._v("\n                "+_vm._s(_vm.newsDetailInfo.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info-text",domProps:{"innerHTML":_vm._s(_vm.newsDetailInfo.DETAIL_TEXT)}})])],1)],1)},
     staticRenderFns: [],
+        components: {Loader},
         data() {
             return {
                 isLoaded: true,
@@ -48,26 +55,23 @@ this.BX = this.BX || {};
         created() {
             if (this.$store.state.newsCache[+this.$route.params.id]) {
                 this.newsDetailInfo = this.$store.state.newsCache[+this.$route.params.id];
+                this.isLoaded = 0;
             } else {
-                BX.ajax.runComponentAction('kostyanvi:news', 'getNewsByID', {
+                BX.ajax.runComponentAction(this.$root.componentName, 'getNewsByID', {
                         mode: 'class',
+                        signedParameters: this.$root.signedParameters,
                         data: {
                             id: +this.$route.params.id
                         },
                     }
                 ).then((responce => {
-                    try {
-                        const result = JSON.parse(responce.data);
+                        const result = responce.data;
                         this.newsDetailInfo = result;
                         this.$store.commit('registerNewNewsCache', result);
-                    } catch (e) {
-                        console.warn('Не удалось получить данные');
-                        this.newsDetailInfo = {};
-                    }
-                }));
+                        setTimeout(() => this.isLoaded = 0, 500);
+                    })
+                ).catch(e => console.warn(e));
             }
-            // Имитация загрузки
-            setTimeout(() => this.isLoaded = 0, 500);
         }
     };
 
@@ -109,13 +113,17 @@ this.BX = this.BX || {};
         name: 'App'
     };
 
-    function init(node) {
-    	return ui_vue.BitrixVue.createApp({
+    function init(node, componentProps) {
+    	ui_vue.BitrixVue.createApp({
+    		data() {
+    			return {
+    				...componentProps
+    			}
+    		},
     		router,
     		store,
     		render: h => h(App)
-    	})
-    		.mount(node);
+    	}).mount(node);
     }
 
     exports.init = init;

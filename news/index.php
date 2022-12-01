@@ -1,14 +1,14 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Новости");
-?>
-
-<? $APPLICATION->IncludeComponent(
-	"kostyanvi:news",
+?><?$APPLICATION->IncludeComponent(
+	"kostyanvi:news", 
 	"news", 
 	array(
 		"COMPONENT_TEMPLATE" => "news",
-		"IBLOCK_ID" => "1"
+		"IBLOCK_ID" => "1",
+		"SEF_MODE" => "Y",
+		"SEF_FOLDER" => "/news/"
 	),
 	false
 );?>
