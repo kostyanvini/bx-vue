@@ -17,7 +17,14 @@
 import Loader from "./Loader.vue";
 
 export default {
+    name: 'DetailNews',
     components: {Loader},
+    props: {
+        componentParams: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             isLoaded: true,
@@ -29,9 +36,9 @@ export default {
             this.newsDetailInfo = this.$store.state.newsCache[+this.$route.params.id];
             this.isLoaded = 0
         } else {
-            BX.ajax.runComponentAction(this.$root.componentName, 'getNewsByID', {
+            BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getNewsByID, {
                     mode: 'class',
-                    signedParameters: this.$root.signedParameters,
+                    signedParameters: this.componentParams.signedParameters,
                     data: {
                         id: +this.$route.params.id
                     },
@@ -40,7 +47,7 @@ export default {
                     const result = responce.data;
                     this.newsDetailInfo = result;
                     this.$store.commit('registerNewNewsCache', result);
-                    setTimeout(() => this.isLoaded = 0, 500);
+                    this.isLoaded = false
                 })
             ).catch(e => console.warn(e));
         }

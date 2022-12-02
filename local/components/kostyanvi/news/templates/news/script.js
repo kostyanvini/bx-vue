@@ -15,6 +15,12 @@ this.BX = this.BX || {};
         components: {
             Loader
         },
+        props: {
+            componentParams: {
+                type: Object,
+                required: true
+            }
+        },
         data() {
             return {
                 news: [],
@@ -26,16 +32,16 @@ this.BX = this.BX || {};
                 this.news = this.$store.state.news;
                 this.isLoaded = false;
             } else {
-                BX.ajax.runComponentAction(this.$root.componentName, 'getAllNews', {
+                BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getAllNews, {
                         mode: 'class',
-                        signedParameters: this.$root.signedParameters,
+                        signedParameters: this.componentParams.signedParameters,
                         data: {},
                     }
                 ).then((responce => {
                         const news = responce.data;
                         this.news = news;
                         this.$store.commit('setAllNews', news);
-                        setTimeout(() => this.isLoaded = false, 1000);
+                        this.isLoaded = false;
                     })
                 ).catch(err => warn(err));
             }
@@ -45,7 +51,14 @@ this.BX = this.BX || {};
     var NewsDetail = {
     render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"detail-news"},[(_vm.isLoaded)?_c('Loader'):_c('div',[_c('router-link',{staticClass:"rollback",attrs:{"to":"/"}},[_vm._v("Go back")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info"},[_c('div',{staticClass:"detail-news__info-name"},[_vm._v("\n                "+_vm._s(_vm.newsDetailInfo.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"detail-news__info-text",domProps:{"innerHTML":_vm._s(_vm.newsDetailInfo.DETAIL_TEXT)}})])],1)],1)},
     staticRenderFns: [],
+        name: 'DetailNews',
         components: {Loader},
+        props: {
+            componentParams: {
+                type: Object,
+                required: true
+            }
+        },
         data() {
             return {
                 isLoaded: true,
@@ -57,9 +70,9 @@ this.BX = this.BX || {};
                 this.newsDetailInfo = this.$store.state.newsCache[+this.$route.params.id];
                 this.isLoaded = 0;
             } else {
-                BX.ajax.runComponentAction(this.$root.componentName, 'getNewsByID', {
+                BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getNewsByID, {
                         mode: 'class',
-                        signedParameters: this.$root.signedParameters,
+                        signedParameters: this.componentParams.signedParameters,
                         data: {
                             id: +this.$route.params.id
                         },
@@ -68,7 +81,7 @@ this.BX = this.BX || {};
                         const result = responce.data;
                         this.newsDetailInfo = result;
                         this.$store.commit('registerNewNewsCache', result);
-                        setTimeout(() => this.isLoaded = 0, 500);
+                        this.isLoaded = false;
                     })
                 ).catch(e => console.warn(e));
             }
@@ -108,21 +121,26 @@ this.BX = this.BX || {};
     });
 
     var App = {
-    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-view')},
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-view',{attrs:{"componentParams":_vm.componentParams}})},
     staticRenderFns: [],
-        name: 'App'
+        name: 'App',
+        props: {
+            componentParams: {
+                type: Object,
+                required: true
+            }
+        }
     };
 
-    function init(node, componentProps) {
+    function init(node, bxProps) {
     	ui_vue.BitrixVue.createApp({
-    		data() {
-    			return {
-    				...componentProps
-    			}
-    		},
     		router,
     		store,
-    		render: h => h(App)
+    		render: h => h(App, {
+    			props: {
+    				componentParams: bxProps
+    			}
+    		})
     	}).mount(node);
     }
 

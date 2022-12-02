@@ -1,10 +1,16 @@
 <template>
-    <router-view></router-view>
+    <router-view :componentParams="componentParams"></router-view>
 </template>
 
 <script>
 export default {
-    name: 'App'
+    name: 'App',
+    props: {
+        componentParams: {
+            type: Object,
+            required: true
+        }
+    }
 }
 </script>
 

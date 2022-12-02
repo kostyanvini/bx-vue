@@ -4,15 +4,14 @@ import store from "./store";
 
 import App from "./components/App.vue";
 
-export function init(node, componentProps) {
+export function init(node, bxProps) {
 	BitrixVue.createApp({
-		data() {
-			return {
-				...componentProps
-			}
-		},
 		router,
 		store,
-		render: h => h(App)
+		render: h => h(App, {
+			props: {
+				componentParams: bxProps
+			}
+		})
 	}).mount(node);
 }

@@ -22,6 +22,12 @@ export default {
     components: {
         Loader
     },
+    props: {
+        componentParams: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
             news: [],
@@ -33,16 +39,16 @@ export default {
             this.news = this.$store.state.news;
             this.isLoaded = false
         } else {
-            BX.ajax.runComponentAction(this.$root.componentName, 'getAllNews', {
+            BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getAllNews, {
                     mode: 'class',
-                    signedParameters: this.$root.signedParameters,
+                    signedParameters: this.componentParams.signedParameters,
                     data: {},
                 }
             ).then((responce => {
                     const news = responce.data;
                     this.news = news;
                     this.$store.commit('setAllNews', news);
-                    setTimeout(() => this.isLoaded = false, 1000)
+                    this.isLoaded = false
                 })
             ).catch(err => warn(err))
         }
