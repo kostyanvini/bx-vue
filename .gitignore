@@ -17,6 +17,7 @@
 /tmp
 /upload
 /webstat
+node_modules
 
 # Files
 /.htaccess
