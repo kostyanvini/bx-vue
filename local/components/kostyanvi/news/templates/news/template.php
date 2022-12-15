@@ -7,7 +7,8 @@ $vueParams = \Bitrix\Main\Web\Json::encode([
 	'componentName' => $this->getComponent()->getName(),
 	'signedParameters' => $this->getComponent()->getSignedParameters(),
 	'getAllNews' => 'getAllNews',
-	'getNewsByID' => 'getNewsByID'
+	'getNewsByID' => 'getNewsByID',
+	'getPageNews' => 'getPageNews'
 ], JSON_UNESCAPED_UNICODE);
 ?>
 

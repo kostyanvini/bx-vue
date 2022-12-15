@@ -3,7 +3,8 @@
 }
 
 use Bitrix\Main\Engine\Contract\Controllerable;
-use Bitrix\Main\Web\Json;
+use \Bitrix\Main\Engine\Response;
+use \Bitrix\Main\UI\PageNavigation;
 
 class CNewsComponent extends CBitrixComponent implements Controllerable
 {
@@ -15,7 +16,8 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 	protected function listKeysSignedParameters()
 	{
 		return [
-			'IBLOCK_ID'
+			'IBLOCK_ID',
+			'ELEMENT_COUNT',
 		];
 	}
 
@@ -70,5 +72,31 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 				->where('IBLOCK_ID', $this->arParams['IBLOCK_ID'])
 				->fetchAll()
 		);
+	}
+
+	public function getPageNewsAction(int $page = 1)
+	{
+		$nav = new \Bitrix\Main\UI\PageNavigation('news-page');
+		$nav->allowAllRecords(true)
+			->setPageSize((int)$this->arParams['ELEMENT_COUNT'])
+			->initFromUri();
+
+		$nav->setCurrentPage($page);
+
+		$news = \Bitrix\Iblock\ElementTable::getList(
+			array(
+				"filter" => ["=IBLOCK_ID" => 1],
+				"count_total" => true,
+				"offset" => $nav->getOffset(),
+				"limit" => $nav->getLimit(),
+			)
+		);
+
+		$nav->setRecordCount($news->getCount());
+
+		return array_map(function ($newsItem) {
+			$newsItem['PREVIEW_PICTURE'] = CFile::GetFileArray($newsItem['PREVIEW_PICTURE']);
+			return $newsItem;
+		}, $news->fetchAll());
 	}
 }

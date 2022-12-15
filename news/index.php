@@ -8,7 +8,8 @@ $APPLICATION->SetTitle("Новости");
 		"COMPONENT_TEMPLATE" => "news",
 		"IBLOCK_ID" => "1",
 		"SEF_MODE" => "Y",
-		"SEF_FOLDER" => "/news/"
+		"SEF_FOLDER" => "/news/",
+		"ELEMENT_COUNT" => "20"
 	),
 	false
 );?>

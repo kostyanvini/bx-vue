@@ -8,11 +8,18 @@ this.BX = this.BX || {};
         name: 'Loader'
     };
 
+    var Pagination = {
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"pagination"},[_c('a',{staticClass:"pagination__item",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$emit('pageChanged', 1)}}},[_vm._v("1")]),_vm._v(" "),_c('a',{staticClass:"pagination__item",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$emit('pageChanged', 2)}}},[_vm._v("2")]),_vm._v(" "),_c('a',{staticClass:"pagination__item",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$emit('pageChanged', 3)}}},[_vm._v("3")]),_vm._v(" "),_c('a',{staticClass:"pagination__item",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$emit('pageChanged', 4)}}},[_vm._v("4")]),_vm._v(" "),_c('a',{staticClass:"pagination__item",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$emit('pageChanged', 5)}}},[_vm._v("5")])])},
+    staticRenderFns: [],
+        name: 'Pagination',
+    };
+
     var News = {
-    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"news"},[(_vm.isLoaded)?_c('Loader'):_vm._l((_vm.news),function(el){return _c('div',{key:el.ID,staticClass:"news__item"},[_c('div',{staticClass:"news__item-image"},[_c('img',{attrs:{"src":el.PREVIEW_PICTURE.SRC,"alt":el.PREVIEW_PICTURE.ALT}})]),_vm._v(" "),_c('div',{staticClass:"news__item-info"},[_c('a',{staticClass:"news__item-title",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$router.push(el.ID)}}},[_vm._v("\n                "+_vm._s(el.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"news__item-text",domProps:{"innerHTML":_vm._s(el.PREVIEW_TEXT)}})])])})],2)},
+    render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"news"},[(_vm.isLoaded)?_c('Loader'):_vm._l((_vm.news),function(el){return _c('div',{key:el.ID,staticClass:"news__item"},[_c('div',{staticClass:"news__item-image"},[_c('img',{attrs:{"src":el.PREVIEW_PICTURE.SRC,"alt":el.PREVIEW_PICTURE.ALT}})]),_vm._v(" "),_c('div',{staticClass:"news__item-info"},[_c('a',{staticClass:"news__item-title",attrs:{"href":"javascript:void(0)"},on:{"click":function($event){return _vm.$router.push(el.ID)}}},[_vm._v("\n                "+_vm._s(el.NAME)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"news__item-text",domProps:{"innerHTML":_vm._s(el.PREVIEW_TEXT)}})])])}),_vm._v(" "),_c('Pagination',{on:{"pageChanged":_vm.changePage}})],2)},
     staticRenderFns: [],
         name: 'News',
         components: {
+            Pagination,
             Loader
         },
         props: {
@@ -43,9 +50,26 @@ this.BX = this.BX || {};
                         this.$store.commit('setAllNews', news);
                         this.isLoaded = false;
                     })
-                ).catch(err => warn(err));
+                ).catch(err => console.warn(err));
             }
         },
+        methods: {
+            changePage(page) {
+                this.isLoaded = true;
+                BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getPageNews, {
+                        mode: 'class',
+                        signedParameters: this.componentParams.signedParameters,
+                        data: {
+                            page
+                        },
+                    }
+                ).then((responce => {
+                        this.news = responce.data;
+                        this.isLoaded = false;
+                    })
+                ).catch(err => console.warn(err));
+            }
+        }
     };
 
     var NewsDetail = {

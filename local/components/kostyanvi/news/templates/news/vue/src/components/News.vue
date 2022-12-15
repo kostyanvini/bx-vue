@@ -12,14 +12,17 @@
                 <div class="news__item-text" v-html="el.PREVIEW_TEXT"></div>
             </div>
         </div>
+        <Pagination @pageChanged="changePage"></Pagination>
     </div>
 </template>
 
 <script>
 import Loader from './Loader.vue';
+import Pagination from "./Pagination.vue";
 export default {
     name: 'News',
     components: {
+        Pagination,
         Loader
     },
     props: {
@@ -50,9 +53,26 @@ export default {
                     this.$store.commit('setAllNews', news);
                     this.isLoaded = false
                 })
-            ).catch(err => warn(err))
+            ).catch(err => console.warn(err))
         }
     },
+    methods: {
+        changePage(page) {
+            this.isLoaded = true;
+            BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getPageNews, {
+                    mode: 'class',
+                    signedParameters: this.componentParams.signedParameters,
+                    data: {
+                        page
+                    },
+                }
+            ).then((responce => {
+                    this.news = responce.data;
+                    this.isLoaded = false;
+                })
+            ).catch(err => console.warn(err));
+        }
+    }
 }
 </script>
 
