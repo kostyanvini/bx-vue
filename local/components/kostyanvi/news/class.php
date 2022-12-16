@@ -10,7 +10,17 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 {
 	public function configureActions()
 	{
-		return [];
+		return [
+			'getNewsByID' => [
+				'prefilters' => []
+			],
+			'getAllNews' => [
+				'prefilters' => []
+			],
+			'getPageNews' => [
+				'prefilters' => []
+			]
+		];
 	}
 
 	protected function listKeysSignedParameters()
@@ -39,6 +49,27 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 
 	public function executeComponent()
 	{
+		$nav = new \Bitrix\Main\UI\PageNavigation('news-page');
+		$nav->allowAllRecords(true)
+			->setPageSize((int)$this->arParams['ELEMENT_COUNT'])
+			->initFromUri();
+
+		$nav->setCurrentPage(1);
+
+		$news = \Bitrix\Iblock\ElementTable::getList(
+			array(
+				"filter" => ["=IBLOCK_ID" => $this->arParams['IBLOCK_ID']],
+				"count_total" => true,
+				"offset" => $nav->getOffset(),
+				"limit" => $nav->getLimit(),
+			)
+		);
+
+		$nav->setRecordCount($news->getCount());
+
+		$this->arResult['PAGINATION']['ALL_RECORDS'] = $nav->getRecordCount();
+		$this->arResult['PAGINATION']['ALL_PAGES'] = $nav->getPageCount();
+
 		$this->includeComponentTemplate();
 	}
 
@@ -60,6 +91,14 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 		return $detailEl;
 	}
 
+	/**
+	 * Получаем все имеющиеся элементы информационного блока
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function getAllNewsAction()
 	{
 		return array_map(
@@ -85,7 +124,7 @@ class CNewsComponent extends CBitrixComponent implements Controllerable
 
 		$news = \Bitrix\Iblock\ElementTable::getList(
 			array(
-				"filter" => ["=IBLOCK_ID" => 1],
+				"filter" => ["=IBLOCK_ID" => $this->arParams['IBLOCK_ID']],
 				"count_total" => true,
 				"offset" => $nav->getOffset(),
 				"limit" => $nav->getLimit(),

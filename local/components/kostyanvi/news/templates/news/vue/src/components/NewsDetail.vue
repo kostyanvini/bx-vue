@@ -2,7 +2,7 @@
     <div class="detail-news">
         <Loader v-if="isLoaded"></Loader>
         <div v-else>
-            <router-link to="/" class="rollback">Go back</router-link>
+            <a href="javascript:void(0)" @click="goBack" class="rollback">Go back</a>
             <div class="detail-news__info">
                 <div class="detail-news__info-name">
                     {{ newsDetailInfo.NAME }}
@@ -49,7 +49,20 @@ export default {
                     this.$store.commit('registerNewNewsCache', result);
                     this.isLoaded = false
                 })
-            ).catch(e => console.warn(e));
+            ).catch(e => {
+                console.warn(err);
+                this.isLoaded = false;
+            });
+        }
+    },
+    methods: {
+        goBack() {
+            if(this.$route.params.fromPage) {
+                this.$router.push('/page/' + this.$route.params.fromPage);
+            }
+            else {
+                this.$router.push('/');
+            }
         }
     }
 }

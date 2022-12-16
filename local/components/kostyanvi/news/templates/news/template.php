@@ -6,6 +6,7 @@ $this->setFrameMode(false);
 $vueParams = \Bitrix\Main\Web\Json::encode([
 	'componentName' => $this->getComponent()->getName(),
 	'signedParameters' => $this->getComponent()->getSignedParameters(),
+	'paginationParams' => $arResult['PAGINATION'],
 	'getAllNews' => 'getAllNews',
 	'getNewsByID' => 'getNewsByID',
 	'getPageNews' => 'getPageNews'

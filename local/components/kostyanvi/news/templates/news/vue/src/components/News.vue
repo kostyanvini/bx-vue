@@ -6,13 +6,13 @@
                 <img :src="el.PREVIEW_PICTURE.SRC" :alt="el.PREVIEW_PICTURE.ALT">
             </div>
             <div class="news__item-info">
-                <a href="javascript:void(0)" @click="$router.push(el.ID)" class="news__item-title">
+                <a href="javascript:void(0)" @click="moveToDetail(el.ID)" class="news__item-title">
                     {{ el.NAME }}
                 </a>
                 <div class="news__item-text" v-html="el.PREVIEW_TEXT"></div>
             </div>
         </div>
-        <Pagination @pageChanged="changePage"></Pagination>
+        <Pagination @pageChanged="changePage" :paginationParams="componentParams.paginationParams"></Pagination>
     </div>
 </template>
 
@@ -35,6 +35,7 @@ export default {
         return {
             news: [],
             isLoaded: true,
+            currentPage: 1
         }
     },
     created() {
@@ -42,10 +43,14 @@ export default {
             this.news = this.$store.state.news;
             this.isLoaded = false
         } else {
-            BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getAllNews, {
+            this.currentPage = this.$route.params.pageId || 1;
+
+            BX.ajax.runComponentAction(this.componentParams.componentName, this.componentParams.getPageNews, {
                     mode: 'class',
                     signedParameters: this.componentParams.signedParameters,
-                    data: {},
+                    data: {
+                        page: this.currentPage
+                    },
                 }
             ).then((responce => {
                     const news = responce.data;
@@ -53,7 +58,11 @@ export default {
                     this.$store.commit('setAllNews', news);
                     this.isLoaded = false
                 })
-            ).catch(err => console.warn(err))
+            ).catch(err => {
+                console.warn(err);
+                this.news = [];
+                this.isLoaded = false;
+            })
         }
     },
     methods: {
@@ -69,8 +78,22 @@ export default {
             ).then((responce => {
                     this.news = responce.data;
                     this.isLoaded = false;
+                    this.currentPage = page;
                 })
-            ).catch(err => console.warn(err));
+            ).catch(err => {
+                console.warn(err);
+                this.news = [];
+                this.isLoaded = false;
+            });
+        },
+        moveToDetail(id) {
+            this.$router.push({
+                name: 'detail',
+                params: {
+                    id,
+                    fromPage: this.currentPage
+                }
+            })
         }
     }
 }

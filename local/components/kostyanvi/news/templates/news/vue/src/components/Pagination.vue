@@ -1,16 +1,25 @@
 <template>
     <div class="pagination">
-        <a href="javascript:void(0)" class="pagination__item" @click="$emit('pageChanged', 1)">1</a>
-        <a href="javascript:void(0)" class="pagination__item" @click="$emit('pageChanged', 2)">2</a>
-        <a href="javascript:void(0)" class="pagination__item" @click="$emit('pageChanged', 3)">3</a>
-        <a href="javascript:void(0)" class="pagination__item" @click="$emit('pageChanged', 4)">4</a>
-        <a href="javascript:void(0)" class="pagination__item" @click="$emit('pageChanged', 5)">5</a>
+        <a href="javascript:void(0)"
+           class="pagination__item"
+           :class="{'_active': +$route.params.pageId === page}"
+           @click="changePage(page)"
+           v-for="page in paginationParams.ALL_PAGES" :key="page">
+            {{ page }}
+        </a>
     </div>
 </template>
 
 <script>
 export default {
     name: 'Pagination',
+    props: ['paginationParams'],
+    methods: {
+        changePage(page) {
+            this.$router.push(`/page/${page}`);
+            this.$emit('pageChanged', page);
+        }
+    }
 }
 </script>
 
@@ -37,6 +46,11 @@ export default {
 
         &:hover {
             background: #429f75;
+        }
+
+        &._active {
+            box-shadow: 0px 0px 2px 3px #28664a;
+            color: #28664a;
         }
     }
 }
